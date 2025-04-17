@@ -1,7 +1,7 @@
 import numpy as np
 import pytest
 
-from danpy.nputils import symlogspace, clip_vec, unit_vec, vec_2d_polar
+from danpy.nputils import symlogspace, clip_vec, rescale_vec, unit_vec, vec_2d_polar
 
 EPS = 1e-8
 
@@ -28,6 +28,24 @@ def test_clip_vec():
     clip_vec(XX, 0.5, inplace=True)
 
     assert np.max(np.sqrt(np.sum(XX**2, axis=-1))) <= 0.5 + eps
+
+
+def test_rescale_vec():
+    np.random.seed(42)
+
+    # Test not in place.
+    XX = np.random.normal(size=(100, 100, 2))
+    YY = rescale_vec(XX, 2.0)
+
+    # fmt: off
+    assert not np.allclose(np.sum(XX**2, axis=-1), 4.0)
+    assert     np.allclose(np.sum(YY**2, axis=-1), 4.0)
+    # fmt: on
+
+    # Now test updating in place.
+    rescale_vec(XX, 2.0, inplace=True)
+
+    assert np.allclose(np.sum(XX**2, axis=-1), 4.0)
 
 
 def test_unit_vec():

@@ -70,6 +70,34 @@ def clip_vec(v: np.ndarray, vmax: float, inplace: bool = False) -> np.ndarray:
     return v
 
 
+def rescale_vec(v: np.ndarray, vmag: float, inplace: bool = False) -> np.ndarray:
+    """
+    Rescale an array of vectors to be a specified length.
+
+    For an N dimensional array ``v`` this will clip the last axis to have a maximum (Euclidean) norm of ``vmax``.
+
+    .. code-block:: Python
+
+        vv = np.stack([vx, vy], axis=-1)
+        vv = rescale_vec(vv)
+
+    Args:
+        v: The array to rescale.
+        vmag: The new length of the vectors.
+        inplace: If ``True``, update ``v`` in place.
+
+    Returns:
+        The rescale array, which has the same size as the input array.
+    """
+    if not inplace:
+        v = v.copy()
+
+    vmag_ = np.sqrt(np.sum(v**2, axis=-1))
+    v[:] = vmag * v / vmag_[..., None]
+
+    return v
+
+
 def unit_vec(v: np.ndarray, inplace: bool = False) -> np.ndarray:
     """
     Normalize an array of vectors to be a unit length.
@@ -88,13 +116,7 @@ def unit_vec(v: np.ndarray, inplace: bool = False) -> np.ndarray:
     Returns:
         The normalized array, which has the same size as the input array.
     """
-    if not inplace:
-        v = v.copy()
-
-    vmag = np.sqrt(np.sum(v**2, axis=-1))
-    v[:] = v / vmag[..., None]
-
-    return v
+    return rescale_vec(v, 1.0, inplace)
 
 
 def vec_2d_polar(
