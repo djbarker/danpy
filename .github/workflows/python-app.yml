@@ -28,12 +28,6 @@ jobs:
         python -m pip install --upgrade pip
         python -m venv test_env
         source test_env/bin/activate
-      # see: https://community.intel.com/t5/Processors/Using-OpenCL-in-GitHub-Actions-running-on-windows/m-p/1498635
-    - name: Setup OpenCL
-      run: |
-        sudo apt-get update
-        sudo apt-get install -y ocl-icd-opencl-dev
-        sudo apt-get install -y pocl-opencl-icd
     - name: Install dependencies
       run: |
         source test_env/bin/activate
