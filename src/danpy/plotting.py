@@ -5,6 +5,7 @@ from typing import Literal, Sequence
 
 import matplotlib as mpl
 import matplotlib.pyplot as plt
+import numpy as np
 
 from matplotlib.axes import Axes
 from matplotlib.colors import LinearSegmentedColormap, Colormap
@@ -37,7 +38,7 @@ def style():
     Setup the rcParams.
     """
 
-    mpl.rcParams["axes.prop_cycle"] = mpl.cycler(
+    mpl.rcParams["axes.prop_cycle"] = mpl.cycler(  # type: ignore
         color=[
             "#683b86",
             "#c95f76",
@@ -210,9 +211,7 @@ _colors = [
 _nodes = [0.0, 0.16666667, 0.33333333, 0.49, 0.5, 0.51, 0.66666667, 0.83333333, 1.0]
 
 OrangeBlue = LinearSegmentedColormap.from_list("OrangeBlue", list(zip(_nodes, _colors)))
-OrangeBlue_r = LinearSegmentedColormap.from_list(
-    "OrangeBlue_r", list(zip(_nodes, _colors[::-1]))
-)
+OrangeBlue_r = LinearSegmentedColormap.from_list("OrangeBlue_r", list(zip(_nodes, _colors[::-1])))
 
 _colors = [
     "#10396a",
@@ -230,12 +229,8 @@ _colors = [
 
 _nodes = [0.0, 0.125, 0.25, 0.375, 0.49, 0.5, 0.51, 0.625, 0.75, 0.875, 1.0]
 
-InkyBlueRed = LinearSegmentedColormap.from_list(
-    "InkyBlueRed", list(zip(_nodes, _colors))
-)
-InkyBlueRed_r = LinearSegmentedColormap.from_list(
-    "InkyBlueRed_r", list(zip(_nodes, _colors[::-1]))
-)
+InkyBlueRed = LinearSegmentedColormap.from_list("InkyBlueRed", list(zip(_nodes, _colors)))
+InkyBlueRed_r = LinearSegmentedColormap.from_list("InkyBlueRed_r", list(zip(_nodes, _colors[::-1])))
 
 # Register our custom colourmaps.
 mpl.colormaps.register(cmap=OrangeBlue)
