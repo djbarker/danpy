@@ -92,10 +92,9 @@ def image_tile_auto(
     """
     Tile a set of images together & save the result.
 
-    Unlike ..py:meth:`~danpy.image_tile.image_tile`, this function takes a flat list of paths.
+    Unlike :py:meth:`~danpy.image_tile.image_tile`, this function takes a flat list of paths.
     It will automatically determine the layout of the images that is closest to a square.
-    You can override this by providing the ``layout`` argument.
-
+    You can override this by providing the ``layout`` argument, but the layout cannot be ragged.
 
     Args:
         paths: A flat list of paths to images.
@@ -103,9 +102,10 @@ def image_tile_auto(
         layout: The (optional) layout of the images.
             The product of the two numbers must be greater than or equal to the number of images.
         resolution: The (optional) resolution to save the image at.
-            See ..py:meth:`~danpy.image_tile.image_tile` for more details.
+            See :py:meth:`~danpy.image_tile.image_tile` for more details.
         background: The background color to use for padding.
-            See ..py:meth:`~danpy.image_tile.image_tile` for more details.
+            See :py:meth:`~danpy.image_tile.image_tile` for more details.
+        labels: Optional labels for the images.
     """
 
     layout = layout or grid_layout_2d(len(paths))

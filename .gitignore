@@ -4,3 +4,5 @@
 .pytest_cache/
 .vscode/
 **/*.egg-info/
+docs/build/
+docs/source/api/
