@@ -79,7 +79,7 @@ def set_maths_style_axes(ax: Axes | None = None, below: bool = True):
 
 
 # fmt: off
-LocT = Literal[
+RelativeLocT = Literal[
     "above",        # N
     "above right",  # NE
     "right",        # E
@@ -97,7 +97,7 @@ def annotate(
     text: str,
     xytext: Sequence[float],
     *args,
-    loc: LocT = "center",
+    loc: RelativeLocT = "center",
     pad: float = 0.3,
     ax: Axes | None = None,
     **kwargs,
