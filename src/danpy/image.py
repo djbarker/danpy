@@ -1,12 +1,32 @@
+"""
+Methods to add labels to images, and tile multiple images into one.
+
+This module can be run as a command line script.
+
+.. code-block:: bash
+
+    # For example
+    python -m danpy.image out.png label in.png -t "A Caption" -l "top"
+
+    # See help for full usage
+    python -m danpy.image --help
+"""
+
 from pathlib import Path
 from PIL import Image, ImageDraw, ImageFont
 from PIL.Image import Resampling
 from typing import Sequence, Literal, get_args
 
 from .grid_layout import grid_layout_2d
-from .plotting import RelativeLocT
 
 __all__ = [
+    "ImageT",
+    "to_image",
+    "AbsoluteLocT",
+    "to_canonical_absloc",
+    "FontT",
+    "to_font",
+    "label_image",
     "image_tile",
     "image_tile_auto",
 ]
@@ -80,35 +100,12 @@ def to_canonical_absloc(loc: str) -> AbsoluteLocT:
     return loc  # type: ignore[return-value]
 
 
-def offset_for_absolute_loc(loc: AbsoluteLocT) -> RelativeLocT:
-    """
-    Where should the text be placed relative to the absolute location?
-
-    Args:
-        loc: The location to get the offset for.
-    """
-
-    offsets: dict[str, RelativeLocT] = {
-        "top left": "below right",
-        "top center": "below",
-        "top right": "below left",
-        "center left": "right",
-        "center center": "center",
-        "center right": "left",
-        "bottom left": "above right",
-        "bottom center": "above",
-        "bottom right": "above left",
-    }
-
-    return offsets[to_canonical_absloc(loc)]
-
-
 FontT = str | Path | ImageFont.FreeTypeFont | None
 
 
 def to_font(font: FontT, font_size: int) -> ImageFont.FreeTypeFont:
     """
-    Convert a ``FontT`` to a PIL :py:class:``~Pillow.ImageFont.Freefont``.
+    Convert a font name or path to a PIL :py:class:`~Pillow.ImageFont.FreeTypeFont`.
 
     .. note::
         If ``font`` is already a PIL font, ``font_size`` is ignored.
@@ -297,9 +294,7 @@ def image_tile_auto(
         layout: The (optional) layout of the images.
             The product of the two numbers must be greater than or equal to the number of images.
         resolution: The (optional) resolution to save the image at.
-            See :py:meth:`~danpy.image_tile.image_tile` for more details.
         background: The background color to use for padding.
-            See :py:meth:`~danpy.image_tile.image_tile` for more details.
     """
 
     layout = layout or grid_layout_2d(len(paths))
@@ -325,13 +320,13 @@ if __name__ == "__main__":
     import argparse as ap
 
     parser = ap.ArgumentParser()
-    parser.add_argument("-o", "--out", dest="out_path")
+    parser.add_argument("out", dest="out_path")
 
     subparsers = parser.add_subparsers(dest="command")
 
     # tile images
     parser_tile = subparsers.add_parser("tile", help="Tile a set of images together.")
-    parser_tile.add_argument("-i", "--in", dest="in_paths", nargs="+")
+    parser_tile.add_argument("in_paths", nargs="+")
     parser_tile.add_argument("-l", "--layout", nargs=2, type=int)
     parser_tile.add_argument("-r", "--resolution", nargs=2, type=int)
     parser_tile.add_argument("-b", "--bkg-color", default="white")
@@ -339,7 +334,7 @@ if __name__ == "__main__":
     # label image
     # fmt: off
     parser_label = subparsers.add_parser("label", help="Label an image.")
-    parser_label.add_argument("-i", "--in", dest="in_path")
+    parser_label.add_argument("in_path")
     parser_label.add_argument("-t", "--text")
     parser_label.add_argument("-l", "--loc", default="top-left", type=to_canonical_absloc)
     parser_label.add_argument("-f", "--font")

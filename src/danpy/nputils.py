@@ -3,6 +3,9 @@ import numpy as np
 
 __all__ = [
     "clip_vec",
+    "rescale_vec",
+    "unit_vec",
+    "vec_2d_polar",
     "symlogspace",
 ]
 
@@ -74,12 +77,12 @@ def rescale_vec(v: np.ndarray, vmag: float, inplace: bool = False) -> np.ndarray
     """
     Rescale an array of vectors to be a specified length.
 
-    For an N dimensional array ``v`` this will clip the last axis to have a maximum (Euclidean) norm of ``vmax``.
+    For an N dimensional array ``v`` this will rescale the last axis to have a (Euclidean) norm of ``vmag``.
 
     .. code-block:: Python
 
         vv = np.stack([vx, vy], axis=-1)
-        vv = rescale_vec(vv)
+        vv = rescale_vec(vv, 2.5)
 
     Args:
         v: The array to rescale.
@@ -102,7 +105,8 @@ def unit_vec(v: np.ndarray, inplace: bool = False) -> np.ndarray:
     """
     Normalize an array of vectors to be a unit length.
 
-    For an N dimensional array ``v`` this will clip the last axis to have a maximum (Euclidean) norm of ``vmax``.
+    For an N dimensional array ``v`` this will rescale the last axis to have a maximum (Euclidean) norm of 1.
+    Shorthand for `rescale_vec(v, 1.0)`.
 
     .. code-block:: Python
 

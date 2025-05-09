@@ -1,3 +1,17 @@
+"""
+Has some helpfer functions, some styling, and registers some custom colormaps.
+
+Divergent Colormaps:
+    * ``"OrangeBlue"``
+    * ``"OrangeBlue_r"``
+    * ``"BlueOrange"``
+    * ``"BlueOrange_r"``
+    * ``"InkyBlueRed"``
+    * ``"InkyBlueRed_r"``
+    * ``"InkyRedBlue"``
+    * ``"InkyRedBlue_r"``
+"""
+
 import logging
 
 from pathlib import Path
