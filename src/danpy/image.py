@@ -208,9 +208,30 @@ def label_image(
     return image
 
 
+def resize_image(
+    image: ImageT, *, width: int | None = None, height: int | None = None
+) -> Image.Image:
+    """
+    Resize an image to the specified resolution.
+
+    Args:
+        width: Width in pixels. If None, this is inferred from ``height`` and the aspect ratio.
+        height: Height in pixels. If None, this is inferred from ``width`` and the aspect ratio.
+    """
+
+    if (width is None) and (height is None):
+        raise ValueError("Must specify one or both of 'width' or 'height'.")
+
+    image = to_image(image)
+    aspect = image.width / image.height
+    width = width or int(height * aspect)  # type: ignore
+    height = height or int(width / height)  # type: ignore
+    image = image.resize((width, height), Resampling.LANCZOS)
+    return image
+
+
 def image_tile(
     in_paths: Sequence[Sequence[ImageT]],
-    resolution: tuple[int, int] | None = None,
     background: str = "white",
 ) -> Image.Image:
     """
@@ -226,7 +247,6 @@ def image_tile(
     Args:
         in_paths: A ragged list of file paths.
         out_path: The path to save the combined image to.
-        resolution: The (optional) resolution to save the image at.
         background: The background color to use for padding.
     """
 
@@ -269,17 +289,12 @@ def image_tile(
             y = sum(heights[:row])
             combined_img.paste(img, (x, y))
 
-    # Resize the combined image if requested.
-    if resolution is not None:
-        combined_img = combined_img.resize(resolution, Resampling.LANCZOS)
-
     return combined_img
 
 
 def image_tile_auto(
     paths: list[ImageT],
     layout: tuple[int, int] | None = None,
-    resolution: tuple[int, int] | None = None,
     background: str = "white",
 ) -> Image.Image:
     """
@@ -293,7 +308,6 @@ def image_tile_auto(
         paths: A flat list of paths to images.
         layout: The (optional) layout of the images.
             The product of the two numbers must be greater than or equal to the number of images.
-        resolution: The (optional) resolution to save the image at.
         background: The background color to use for padding.
     """
 
@@ -309,11 +323,7 @@ def image_tile_auto(
             idx += 1
         paths_.append(paths_row)
 
-    return image_tile(
-        paths_,
-        resolution=resolution,
-        background=background,
-    )
+    return image_tile(paths_, background=background)
 
 
 if __name__ == "__main__":
@@ -328,7 +338,8 @@ if __name__ == "__main__":
     parser_tile = subparsers.add_parser("tile", help="Tile a set of images together.")
     parser_tile.add_argument("in_paths", nargs="+")
     parser_tile.add_argument("-l", "--layout", nargs=2, type=int)
-    parser_tile.add_argument("-r", "--resolution", nargs=2, type=int)
+    parser_tile.add_argument("-w", "--width", type=int)
+    parser_tile.add_argument("-h", "--height", type=int)
     parser_tile.add_argument("-b", "--bkg-color", default="white")
 
     # label image
@@ -343,15 +354,24 @@ if __name__ == "__main__":
     parser_label.add_argument("--invert", action="store_true", help="Draw black text with white outline.")
     # fmt: on
 
+    # resize image
+    parser_tile = subparsers.add_parser("resize", help="Resize an image.")
+    parser_tile.add_argument("in_path")
+    parser_tile.add_argument("-w", "--width", type=int)
+    parser_tile.add_argument("-h", "--height", type=int)
+
     args = parser.parse_args()
 
     if args.command == "tile":
         image = image_tile_auto(
             args.in_paths,
             layout=args.layout,
-            resolution=args.resolution,
             background=args.bkg_color,
         )
+
+        if args.size:
+            image = resize_image(image, width=args.width, height=args.height)
+
     elif args.command == "label":
         image = label_image(
             args.in_path,
@@ -362,6 +382,10 @@ if __name__ == "__main__":
             stroke=not args.no_stroke,
             invert=args.invert,
         )
+
+    elif args.command == "resize":
+        image = resize_image(args.in_path, width=args.width, height=args.height)
+
     else:
         parser.print_help()
         exit(1)
