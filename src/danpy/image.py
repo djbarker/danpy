@@ -225,13 +225,14 @@ def resize_image(
     image = to_image(image)
     aspect = image.width / image.height
     width = width or int(height * aspect)  # type: ignore
-    height = height or int(width / height)  # type: ignore
+    height = height or int(width / aspect)  # type: ignore
     image = image.resize((width, height), Resampling.LANCZOS)
     return image
 
 
 def image_tile(
     in_paths: Sequence[Sequence[ImageT]],
+    padding: int = 0,
     background: str = "white",
 ) -> Image.Image:
     """
@@ -246,7 +247,7 @@ def image_tile(
 
     Args:
         in_paths: A ragged list of file paths.
-        out_path: The path to save the combined image to.
+        padding: Pad the tiled images with this number of pixels.
         background: The background color to use for padding.
     """
 
@@ -277,16 +278,16 @@ def image_tile(
             heights[row] = max(heights[row], image.height)
 
     # Calculate the total width and height of the combined image.
-    width = sum(widths)
-    height = sum(heights)
+    width = sum(widths) + (len(widths) - 1) * padding
+    height = sum(heights) + (len(heights) - 1) * padding
 
     # Create a new image with the combined size and paste the images into it.
     combined_img = Image.new("RGB", (width, height), background)
 
     for row in range(nrows):
         for col, img in enumerate(images[row]):
-            x = sum(widths[:col])
-            y = sum(heights[:row])
+            x = sum(widths[:col]) + col * padding
+            y = sum(heights[:row]) + row * padding
             combined_img.paste(img, (x, y))
 
     return combined_img
@@ -295,6 +296,7 @@ def image_tile(
 def image_tile_auto(
     paths: list[ImageT],
     layout: tuple[int, int] | None = None,
+    padding: int = 0,
     background: str = "white",
 ) -> Image.Image:
     """
@@ -308,6 +310,7 @@ def image_tile_auto(
         paths: A flat list of paths to images.
         layout: The (optional) layout of the images.
             The product of the two numbers must be greater than or equal to the number of images.
+        padding: Pad the tiled images with this number of pixels.
         background: The background color to use for padding.
     """
 
@@ -323,24 +326,27 @@ def image_tile_auto(
             idx += 1
         paths_.append(paths_row)
 
-    return image_tile(paths_, background=background)
+    return image_tile(paths_, padding=padding, background=background)
 
 
 if __name__ == "__main__":
     import argparse as ap
 
     parser = ap.ArgumentParser()
-    parser.add_argument("out", dest="out_path")
+    parser.add_argument("out_path")
 
     subparsers = parser.add_subparsers(dest="command")
 
     # tile images
+    # fmt: off
     parser_tile = subparsers.add_parser("tile", help="Tile a set of images together.")
     parser_tile.add_argument("in_paths", nargs="+")
     parser_tile.add_argument("-l", "--layout", nargs=2, type=int)
+    parser_tile.add_argument("-p", "--padding", type=int, default=0, help="Units of pixels of the original images.")
     parser_tile.add_argument("-w", "--width", type=int)
-    parser_tile.add_argument("-h", "--height", type=int)
+    parser_tile.add_argument("-v", "--height", type=int)
     parser_tile.add_argument("-b", "--bkg-color", default="white")
+    # fmt: on
 
     # label image
     # fmt: off
@@ -358,7 +364,7 @@ if __name__ == "__main__":
     parser_tile = subparsers.add_parser("resize", help="Resize an image.")
     parser_tile.add_argument("in_path")
     parser_tile.add_argument("-w", "--width", type=int)
-    parser_tile.add_argument("-h", "--height", type=int)
+    parser_tile.add_argument("-v", "--height", type=int)
 
     args = parser.parse_args()
 
@@ -366,10 +372,11 @@ if __name__ == "__main__":
         image = image_tile_auto(
             args.in_paths,
             layout=args.layout,
+            padding=args.padding,
             background=args.bkg_color,
         )
 
-        if args.size:
+        if args.width or args.height:
             image = resize_image(image, width=args.width, height=args.height)
 
     elif args.command == "label":
