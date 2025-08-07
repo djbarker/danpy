@@ -1,4 +1,4 @@
-from typing import Literal
+from typing import Literal, Sequence
 import numpy as np
 
 __all__ = [
@@ -167,4 +167,46 @@ def vec_2d_polar(
     xy = np.stack([x, y], axis=-1)
     xy = np.squeeze(xy)
 
+    return xy
+
+
+def hex_grid(
+    x: float | tuple[float, float],
+    y: float | tuple[float, float],
+    dx: float,
+) -> np.ndarray:
+    """
+    Create a hexagonal grid of points in the plane.
+
+    Note:
+        You can either specify only the maxiumum for each coordinate, in which case the minimum
+        defaults to 0, or you can specify a tuple of (min, max).
+
+    Args:
+        x: Either the maximum x coordinate, or a tuple specifying the minimum and maximum x coordinates.
+        y: Either the maximum y coordinate, or a tuple specifying the minimum and maximum y coordinates
+        dx: The distance between adjacent points in the x direction.
+
+    Returns:
+        A 2D numpy array of shape (N, 2) where each row is a point (x, y) in the hexagonal grid.
+    """
+
+    xmin = x[0] if isinstance(x, Sequence) else 0
+    xmax = x[1] if isinstance(x, Sequence) else x
+    ymin = y[0] if isinstance(y, Sequence) else 0
+    ymax = y[1] if isinstance(y, Sequence) else y
+
+    f = np.sqrt(3) / 2
+    dy = dx * f
+    xs = np.arange(xmin, xmax, dx, dtype=float)
+    ys = np.arange(ymin, ymax, dy, dtype=float)
+
+    xx, yy = np.meshgrid(xs, ys)
+    xx[1::2, :] += 0.5 * dx
+    xx = xx.flatten()
+    yy = yy.flatten()
+    mm = xx < xmax
+    xx = xx[mm]
+    yy = yy[mm]
+    xy = np.stack([xx, yy], axis=-1)
     return xy
