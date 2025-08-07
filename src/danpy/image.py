@@ -330,6 +330,13 @@ def image_tile_auto(
     return image_tile(paths_, padding=padding, background=background)
 
 
+def _decode(val: str) -> str:
+    """
+    Unescape backslash characters (e.g. "\n") passed into the CLI.
+    """
+    return val.encode("utf-8").decode("unicode-escape")
+
+
 if __name__ == "__main__":
     import argparse as ap
 
@@ -353,7 +360,7 @@ if __name__ == "__main__":
     # fmt: off
     parser_label = subparsers.add_parser("label", help="Label an image.")
     parser_label.add_argument("in_path")
-    parser_label.add_argument("-t", "--text")
+    parser_label.add_argument("-t", "--text", type=_decode)
     parser_label.add_argument("-l", "--loc", default="top-left", type=to_canonical_absloc)
     parser_label.add_argument("-f", "--font")
     parser_label.add_argument("-s", "--size", type=int)
