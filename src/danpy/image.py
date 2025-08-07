@@ -12,6 +12,7 @@ This module can be run as a command line script.
     python -m danpy.image --help
 """
 
+from math import sqrt
 from pathlib import Path
 from PIL import Image, ImageDraw, ImageFont
 from PIL.Image import Resampling
@@ -155,7 +156,7 @@ def label_image(
     """
 
     image = to_image(image)
-    size = size or (image.height // 15)
+    size = size or (sqrt(image.height * image.width) // 15)
     font = to_font(font, size)
     loc = to_canonical_absloc(loc)
 
