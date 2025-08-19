@@ -50,16 +50,34 @@ __all__ = [
 def style():
     """
     Setup the rcParams.
+
+    See: https://matplotlib.org/stable/users/explain/customizing.html.
     """
+
+    mpl.rcParams["font.sans-serif"] = "Geist"
 
     mpl.rcParams["axes.prop_cycle"] = mpl.cycler(  # type: ignore
         color=[
-            "#683b86",
             "#c95f76",
-            "#fdb73b",
+            "#683b86",
+            "#e7af34",
             "#008000",
+            "#338878",
         ]
     )
+
+    mpl.rcParams["axes.grid"] = True
+    mpl.rcParams["axes.grid.which"] = "both"
+
+    mpl.rcParams["axes.axisbelow"] = True
+    mpl.rcParams["grid.color"] = "#bebebe"
+    mpl.rcParams["grid.linestyle"] = ":"
+    mpl.rcParams["grid.linewidth"] = "0.5"
+
+    mpl.rcParams["xtick.top"] = True
+    mpl.rcParams["ytick.right"] = True
+    mpl.rcParams["xtick.direction"] = "in"
+    mpl.rcParams["ytick.direction"] = "in"
 
 
 def save_show(fname: str | Path, *args, fig: Figure | None = None, **kwargs):
@@ -225,7 +243,9 @@ _colors = [
 _nodes = [0.0, 0.16666667, 0.33333333, 0.49, 0.5, 0.51, 0.66666667, 0.83333333, 1.0]
 
 OrangeBlue = LinearSegmentedColormap.from_list("OrangeBlue", list(zip(_nodes, _colors)))
-OrangeBlue_r = LinearSegmentedColormap.from_list("OrangeBlue_r", list(zip(_nodes, _colors[::-1])))
+OrangeBlue_r = LinearSegmentedColormap.from_list(
+    "OrangeBlue_r", list(zip(_nodes, _colors[::-1]))
+)
 
 _colors = [
     "#10396a",
@@ -243,8 +263,12 @@ _colors = [
 
 _nodes = [0.0, 0.125, 0.25, 0.375, 0.49, 0.5, 0.51, 0.625, 0.75, 0.875, 1.0]
 
-InkyBlueRed = LinearSegmentedColormap.from_list("InkyBlueRed", list(zip(_nodes, _colors)))
-InkyBlueRed_r = LinearSegmentedColormap.from_list("InkyBlueRed_r", list(zip(_nodes, _colors[::-1])))
+InkyBlueRed = LinearSegmentedColormap.from_list(
+    "InkyBlueRed", list(zip(_nodes, _colors))
+)
+InkyBlueRed_r = LinearSegmentedColormap.from_list(
+    "InkyBlueRed_r", list(zip(_nodes, _colors[::-1]))
+)
 
 # Register our custom colourmaps.
 mpl.colormaps.register(cmap=OrangeBlue)
